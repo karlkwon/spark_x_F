@@ -10,4 +10,5 @@ https://docs.google.com/presentation/d/1LJC_Q4B4RlvFvL6h5gm7RbRIZpojyRU_Nx-nMebe
 https://docs.google.com/presentation/d/1I1_YX_qg8sMIweqTXL3XVOPzlCI4K0spPaZ2Ee38Lo0/edit?usp=sharing
 
 4일차 교육자료
+https://docs.google.com/presentation/d/1vb7xKJJo0tYs8lt7Dy-bKiAWQ-a6d64jQKLMgo0imE0/edit?usp=sharing
 https://colab.research.google.com/drive/1CnMwJyNbVRKMP4Wu7udtMCYNRfM8jezJ?usp=sharing
