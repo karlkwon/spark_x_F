@@ -16,3 +16,7 @@ https://colab.research.google.com/drive/1l5v77TZkstjsUr3gPwb_EuvoFOmQliC3?usp=sh
 
 5일차 교육자료</br>
 https://docs.google.com/presentation/d/1xHnagoZxbocs9rITt8TkkcESZlApxFSplO5is2rsLic/edit?usp=sharing
+
+
+요구사항</br>
+https://docs.google.com/spreadsheets/d/1hx-ndlAYl1tlhziOAewOpdRvKipkuTBo9IkPAvvgb34/edit?usp=sharing
