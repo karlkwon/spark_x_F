@@ -16,7 +16,7 @@ class Turtlebot3ManipulationTest(Node):
 		
 		self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
 		self.joint_pub = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
-        self.gripper_action_client = ActionClient(self, GripperCommand, 'gripper_controller/gripper_cmd')
+		self.gripper_action_client = ActionClient(self, GripperCommand, 'gripper_controller/gripper_cmd')
 		self.timer = self.create_timer(1.0, self.timer_callback)
 
 		# Twist is geometry_msgs for linear and angular velocity 
