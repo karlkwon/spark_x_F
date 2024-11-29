@@ -4,7 +4,6 @@
 import rclpy	# Needed to create a ROS node 
 from geometry_msgs.msg import Twist    # Message that moves base
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from control_msgs.action import GripperCommand
 from std_msgs.msg import Header
 from rclpy.node import Node
 import math
@@ -16,7 +15,8 @@ class Turtlebot3ManipulationTest(Node):
 		
 		self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
 		self.joint_pub = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
-		self.gripper_action_client = ActionClient(self, GripperCommand, 'gripper_controller/gripper_cmd')
+		self.gripper_pub = self.create_publisher(JointTrajectory, '/gripper_controller/joint_trajectory', 10)
+		# self.gripper_action_client = ActionClient(self, JointTrajectory, '/gripper_controller/joint_trajectory')
 		self.timer = self.create_timer(1.0, self.timer_callback)
 
 		# Twist is geometry_msgs for linear and angular velocity 
@@ -59,16 +59,34 @@ class Turtlebot3ManipulationTest(Node):
 			self.gripper_state = 0
 
 	def send_gripper_goal(self, position):
-		"""Gripper goal 설정"""
-		goal = GripperCommand.Goal()
-		goal.command.position = position
-		goal.command.max_effort = -1.0
+		trajectory_msg = JointTrajectory()
 
-		if not self.gripper_action_client.wait_for_server(timeout_sec=1.0):
-			self.get_logger().error("Gripper action server not available!")
-			return
+		current_time = self.get_clock().now()
+		trajectory_msg.header = Header()
+		trajectory_msg.header.stamp = current_time.to_msg()
+		trajectory_msg.header.frame_id = ''
+		trajectory_msg.joint_names = ['gripper_left_joint', ]
 
-		self.gripper_action_client.send_goal_async(goal)
+		point = JointTrajectoryPoint()
+		point.positions = [position, ]
+		point.velocities = [0.0]
+		point.time_from_start.sec = 3
+		point.time_from_start.nanosec = 0
+
+		trajectory_msg.points = [point]
+
+		self.gripper_pub.publish(trajectory_msg)
+
+		# """Gripper goal 설정"""
+		# goal = GripperCommand.Goal()
+		# goal.command.position = position
+		# goal.command.max_effort = -1.0
+
+		# if not self.gripper_action_client.wait_for_server(timeout_sec=1.0):
+		# 	self.get_logger().error("Gripper action server not available!")
+		# 	return
+
+		# self.gripper_action_client.send_goal_async(goal)
 
 def main(args=None):
     rclpy.init(args=args)
