@@ -1,0 +1,22 @@
+<robot name="openmanipulator">
+  <link
+    name="base_link">
+  </link>
+  <link
+    name="r1_link">
+  </link>
+
+  <joint
+    name="j1"
+    type="revolute">
+    <origin
+      xyz="0 0 0.077"
+      rpy="1.5707963267949 0 0.77" />
+    <parent
+      link="base_link" />
+    <child
+      link="r1_link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>
