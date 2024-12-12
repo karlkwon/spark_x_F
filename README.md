@@ -19,4 +19,4 @@ https://docs.google.com/presentation/d/1xHnagoZxbocs9rITt8TkkcESZlApxFSplO5is2rs
 
 
 요구사항</br>
-https://docs.google.com/spreadsheets/d/1UteW5Byu0yM_rF2uGm0Lj6qL4wWzhzf1epeuN216HKM/edit?usp=sharing
+https://docs.google.com/spreadsheets/d/1igpOo0LOt5ilj4FVjUZekpOE1SilQJ965HVfPCas_Iw/edit?usp=sharing
