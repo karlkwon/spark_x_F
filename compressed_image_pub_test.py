@@ -18,12 +18,16 @@ class ImagePublisher(Node):
         self.timer = self.create_timer(0.1, self.publish_image)
 
         # OpenCV 비디오 캡처 객체 생성 (카메라 0번 장치 사용)
-        # self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(2, cv2.CAP_V4L2)
+        # self.cap = cv2.VideoCapture(2)
         # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        self.cap.set(cv2.CAP_PROP_FPS, 25)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        
+        print(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH), self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     def publish_image(self):
         # 카메라에서 한 프레임 읽기
