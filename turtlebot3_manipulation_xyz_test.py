@@ -7,16 +7,20 @@ import sys
 import getkey
 
 import rclpy	# Needed to create a ROS node 
+from rclpy.action import ActionClient
 from geometry_msgs.msg import Twist    # Message that moves base
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.action import GripperCommand
 from std_msgs.msg import Header
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
 import math
 
 
+j1_z_offset = 77
 r1 = 130
 r2 = 124
-r3 = 126
+r3 = 150
 
 
 th1_offset = - math.atan2(0.024, 0.128)
@@ -44,6 +48,8 @@ def solv2(r1, r2, r3):
 # sr2 : angle between J0->J1 to J1->J2
 # sr3 : angle between J1->J2 to J2->J3 (maybe always parallel)
 def solv_robot_arm2(x, y, z, r1, r2, r3):
+  z = z + r3 - j1_z_offset
+
   Rt = math.sqrt(x**2 + y**2 + z**2)
   Rxy = math.sqrt(x**2 + y**2)
   St = math.asin(z / Rt)
@@ -57,18 +63,7 @@ def solv_robot_arm2(x, y, z, r1, r2, r3):
   sr2_ = sr1 + sr2
   sr3 = math.pi - sr2_
 
-  J0 = (0, 0, 0)
-  J1 = (J0[0] + r1 * math.sin(sr1)  * math.cos(Sxy),
-        J0[1] + r1 * math.sin(sr1)  * math.sin(Sxy),
-        J0[2] + r1 * math.cos(sr1))
-  J2 = (J1[0] + r2 * math.sin(sr1 + sr2) * math.cos(Sxy),
-        J1[1] + r2 * math.sin(sr1 + sr2) * math.sin(Sxy),
-        J1[2] + r2 * math.cos(sr1 + sr2))
-  J3 = (J2[0] + r3 * math.sin(sr1 + sr2 + sr3) * math.cos(Sxy),
-        J2[1] + r3 * math.sin(sr1 + sr2 + sr3) * math.sin(Sxy),
-        J2[2] + r3 * math.cos(sr1 + sr2 + sr3))
-
-  return J0, J1, J2, J3, Sxy, sr1, sr2, sr3, St, Rt
+  return Sxy, sr1, sr2, sr3, St, Rt
 
 
 usage = """
@@ -80,18 +75,26 @@ Joint Space Control:
 - Joint3 : Increase (I), Decrease (K)
 - Joint4 : Increase (O), Decrease (L)
 
+w: forward
+s: backward
+d: turn right
+a: turn left
+
+<space>: stop
+
 INIT : (1)
 
 CTRL-C to quit
 """
 
-joint_angle_delta = 0.05  # radian
+joint_angle_delta = 0.1  # radian
 
 
 class Turtlebot3ManipulationTest(Node): 
 	# settings = None
 	# if os.name != 'nt':
 	# 	settings = termios.tcgetattr(sys.stdin)
+	qos = QoSProfile(depth=10)
         
 	def __init__(self): 
 
@@ -100,6 +103,7 @@ class Turtlebot3ManipulationTest(Node):
 		
 		self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
 		self.joint_pub = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
+		self.gripper_action_client = ActionClient(self, GripperCommand, 'gripper_controller/gripper_cmd')
 		# self.timer = self.create_timer(1.0, self.timer_callback)
 
 		# Twist is geometry_msgs for linear and angular velocity 
@@ -113,7 +117,7 @@ class Turtlebot3ManipulationTest(Node):
 
 		self.trajectory_msg = JointTrajectory()
 
-		J0, J1, J2, J3, Sxy, sr1, sr2, sr3, St, Rt = solv_robot_arm2(100, 0, 100, r1, r2, r3)
+		Sxy, sr1, sr2, sr3, St, Rt = solv_robot_arm2(100, 0, 0, r1, r2, r3)
 
 
 		current_time = self.get_clock().now()
@@ -123,22 +127,27 @@ class Turtlebot3ManipulationTest(Node):
 		self.trajectory_msg.joint_names = ['joint1', 'joint2', 'joint3', 'joint4']
 
 		point = JointTrajectoryPoint()
-		# point.positions = [0.003, math.pi / 4.0, -0.489, 2.041]
-#		point.positions = [0.0] * 4
 		point.positions = [Sxy, sr1 + th1_offset, sr2 + th2_offset, sr3]
 		point.velocities = [0.0] * 4
-		point.time_from_start.sec = 3
-		point.time_from_start.nanosec = 0
+		point.accelerations = [0.0] * 4
+		point.time_from_start.sec = 0
+		point.time_from_start.nanosec = 500
 
 		self.trajectory_msg.points = [point]
 
 		self.joint_pub.publish(self.trajectory_msg)
 
-	# def timer_callback(self):
-	# 	print('.')
-	# 	self.joint_pub.publish(self.trajectory_msg)
-	# 	self.cmd_vel.publish(self.move_cmd) 
-
+	def send_gripper_goal(self, position):
+		goal = GripperCommand.Goal()
+		goal.command.position = position
+		goal.command.max_effort = -1.0
+    
+		if not self.gripper_action_client.wait_for_server(timeout_sec=1.0):
+			self.get_logger().error("Gripper action server not available!")
+			return
+          
+		self.gripper_action_client.send_goal_async(goal)
+        
 
 node = None
 
@@ -196,6 +205,40 @@ def main(args=None):
                 node.trajectory_msg.points[0].positions[3] -= joint_angle_delta
                 node.joint_pub.publish(node.trajectory_msg)
                 print('joint4 -')
+
+            elif key_value == 'w':
+                node.move_cmd.linear.x = 0.1
+                node.move_cmd.angular.z = 0.
+                node.cmd_vel.publish(node.move_cmd) 
+                print('forward')
+            elif key_value == 's':
+                node.move_cmd.linear.x = -0.1
+                node.move_cmd.angular.z = 0.
+                node.cmd_vel.publish(node.move_cmd) 
+                print('backward')
+            elif key_value == 'd':
+                node.move_cmd.linear.x = 0.
+                node.move_cmd.angular.z = -0.1
+                node.cmd_vel.publish(node.move_cmd) 
+                print('right')
+            elif key_value == 'a':
+                node.move_cmd.linear.x = 0.
+                node.move_cmd.angular.z = 0.1
+                node.cmd_vel.publish(node.move_cmd) 
+                print('left')
+            elif key_value == ' ':
+                node.move_cmd.linear.x = 0.
+                node.move_cmd.angular.z = 0.
+                node.cmd_vel.publish(node.move_cmd) 
+                print('stop')
+
+            elif key_value == '=':
+                node.send_gripper_goal(-0.015)
+                print('open')
+            elif key_value == '-':
+                node.send_gripper_goal(0.01)
+                print('close')
+
             elif key_value == 'q':
                 break
             
