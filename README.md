@@ -15,7 +15,7 @@ https://colab.research.google.com/drive/1CnMwJyNbVRKMP4Wu7udtMCYNRfM8jezJ?usp=sh
 https://colab.research.google.com/drive/1l5v77TZkstjsUr3gPwb_EuvoFOmQliC3?usp=sharing
 
 5일차 교육자료</br>
-https://docs.google.com/presentation/d/1xHnagoZxbocs9rITt8TkkcESZlApxFSplO5is2rsLic/edit?usp=sharing
+https://docs.google.com/spreadsheets/d/1Y0LCVMr9wZF99647Vv3xJfYPMlrOL7UXsKe3n96Fpcw/edit?usp=sharing
 
 
 요구사항</br>
