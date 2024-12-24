@@ -29,9 +29,9 @@ class WindowClass(QMainWindow, form_class):
 
 	def button2Function(self):
 		print("btn_2 clicked")
-		image = cv2.imread('SavedImage.jpg')
-		image = self.cvimage_to_label(image)
-		self.label_1.setPixmap(QPixmap.fromImage(image))
+		# image = cv2.imread('SavedImage.jpg')
+		# image = self.cvimage_to_label(image)
+		# self.label_1.setPixmap(QPixmap.fromImage(image))
 
 	def showImage(self, image_np):
 		image = self.cvimage_to_label(image_np)
@@ -68,6 +68,7 @@ class ImageSubscriber(Node):
         self.image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # Decode to color image
         # cv2.imshow('RGB Image', image_np)
         # cv2.waitKey(1)  # Display the image until a keypress
+
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
