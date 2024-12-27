@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CompressedImage
-from cv_bridge import CvBridge
+#from cv_bridge import CvBridge
 import cv2
 
 class ImagePublisher(Node):
@@ -12,13 +12,13 @@ class ImagePublisher(Node):
         self.publisher_ = self.create_publisher(CompressedImage, 'rgb_image/compressed_image', 10)
         
         # OpenCV와 ROS 간 변환을 위한 CvBridge 초기화
-        self.bridge = CvBridge()
+ #       self.bridge = CvBridge()
 
         # 주기적인 이미지 전송을 위한 타이머 설정 (주기: 1초)
         self.timer = self.create_timer(0.1, self.publish_image)
 
         # OpenCV 비디오 캡처 객체 생성 (카메라 0번 장치 사용)
-        self.cap = cv2.VideoCapture(2, cv2.CAP_V4L2)
+        self.cap = cv2.VideoCapture(5, cv2.CAP_V4L2)
         # self.cap = cv2.VideoCapture(2)
         # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
